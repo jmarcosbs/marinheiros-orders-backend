@@ -1,25 +1,31 @@
 from rest_framework import serializers
-from .models import Order, Dish
+from .models import Order, Dish, OrderDish
 
 class DishSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dish
         fields = ['id', 'department', 'dish_name']
 
+class OrderDishSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderDish
+        fields = ['dish', 'amount', 'dish_note']  # Campos do OrderDish
+
 class OrderSerializer(serializers.ModelSerializer):
-    # Durante a criação do pedido, os pratos são enviados como uma lista de IDs
-    dishes = serializers.PrimaryKeyRelatedField(queryset=Dish.objects.all(), many=True, write_only=True)
-    
-    # Na resposta, serialize os pratos completos
-    dishes_details = DishSerializer(source='dishes', many=True, read_only=True)
+    order_dishes = OrderDishSerializer(many=True, write_only=True)  # Usando o novo serializer
 
     class Meta:
         model = Order
-        fields = ['id', 'date_time', 'table_number', 'waiter', 'is_outside', 'order_note', 'dishes', 'dishes_details']
+        fields = ['id', 'date_time', 'table_number', 'waiter', 'is_outside', 'order_note', 'order_dishes']
+
+    def create(self, validated_data):
+        order_dishes_data = validated_data.pop('order_dishes')
+        order = Order.objects.create(**validated_data)
+        for order_dish_data in order_dishes_data:
+            OrderDish.objects.create(order=order, **order_dish_data)
+        return order
 
     def to_representation(self, instance):
-        # Usa o método padrão para serializar os dados
         representation = super().to_representation(instance)
-        # Remove o campo "dishes" da resposta (pois ele só contém os IDs)
-        representation.pop('dishes', None)
+        representation['order_dishes'] = OrderDishSerializer(instance.order_dishes.all(), many=True).data
         return representation

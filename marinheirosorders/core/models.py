@@ -13,4 +13,9 @@ class Order(models.Model):
     waiter = models.CharField(max_length=100)
     is_outside = models.BooleanField(default=False)
     order_note = models.TextField(blank=True)
-    dishes = models.ManyToManyField(Dish, related_name='dishes')
+
+class OrderDish(models.Model):
+    order = models.ForeignKey(Order, related_name='order_dishes', on_delete=models.CASCADE)
+    dish = models.ForeignKey(Dish, related_name='order_dishes', on_delete=models.CASCADE)
+    amount = models.IntegerField(default=1)  # Campo para quantidade
+    dish_note = models.TextField(null=True, blank=True)  # Campo para nota do prato
