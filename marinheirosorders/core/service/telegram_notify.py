@@ -26,27 +26,26 @@ def send_notification(order_data):
         dish_note = order_dish['dish_note']
         dishes_text += f"""
 
-            <b>{amount}x {dish['dish_name']}</b>
-            Observação: {dish_note}
-
-    """
+        <b>🍽️ {amount}x {dish['dish_name']}</b>
+        {'Observação: ' + dish_note if dish_note else ''}
+        """
     
     telegram_message = f"""
 
-        <b>Pedido {order_id}</b>\n
-        Data: {date_time}
-        Atendente: {waiter}
-        Mesa: {'R' if is_outside else ''}{table_number}
+        <b>🛎️ Pedido {order_id}</b>\n
+        📅 Data: {date_time}
+        👨‍🦲 Atendente: {waiter}
+        🪑 Mesa: {'R' if is_outside else ''}{table_number}
         
         {dishes_text}
         
-        Observação geral: {order_note}
+        {'📄 Observação geral: ' + dish_note if dish_note else ''}
 
     """
     
     token = "7641995639:AAEi5W_XRqoo-0y3u2YU4JVmTy_IrZttJPo"
 
-    chatId = "732421718"
+    chatId = "-1002411830546"
     
     telegramUrl = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chatId}&parse_mode=HTML&text={telegram_message}"
 
