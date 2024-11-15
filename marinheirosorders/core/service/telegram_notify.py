@@ -39,7 +39,7 @@ def send_notification(order_data):
         
         {dishes_text}
         
-        {'📄 Observação geral: ' + dish_note if dish_note else ''}
+        {'📄 Observação geral: ' + order_note if order_note else ''}
 
     """
     

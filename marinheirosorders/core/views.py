@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 from .models import Order
 from .serializers import OrderSerializer
-from .service.print import print_order, PrinterOfflineException  # Importando a função de impressão
+from .service.print import print_order, is_printer_offline, PrinterOfflineException  # Importando a função de impressão
 from .service.telegram_notify import send_notification
 from unidecode import unidecode
 import re
@@ -33,6 +33,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 normalized_data[key] = value  # Mantém valores não-string inalterados
         
         try:
+            print(f'Impressora offline? {is_printer_offline()}')
             print_order(normalized_data)  # Chamada para a função de impressão
             send_notification(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

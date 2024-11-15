@@ -2,9 +2,13 @@ from datetime import datetime
 from win32 import win32print
 from rest_framework.exceptions import APIException
 from unidecode import unidecode
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # dish_name da impressora (substitua com o dish_name da sua impressora ESC/P)
-default_printer = win32print.GetDefaultPrinter()
+default_printer = os.getenv('DEFAULT_PRINTER')
 
 class PrinterOfflineException(APIException):
     status_code = 503
@@ -12,15 +16,15 @@ class PrinterOfflineException(APIException):
     default_code = "printer_offline"
     
 def is_printer_offline():
+    try:
         hPrinter = win32print.OpenPrinter(default_printer)
         # Nível 2 retorna um dicionário com informações detalhadas sobre a impressora
         printer_info = win32print.GetPrinter(hPrinter, 2)
-        if printer_info['Attributes'] != 2624:
-            win32print.ClosePrinter(hPrinter)
-            return True
-        else:
-            win32print.ClosePrinter(hPrinter)
-            return False
+        print(printer_info)
+        win32print.ClosePrinter(hPrinter)
+        return False
+    except:
+        return True
 
 def print_order(order_data):
     
