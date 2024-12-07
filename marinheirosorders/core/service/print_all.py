@@ -8,14 +8,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # dish_name da impressora (substitua com o dish_name da sua impressora ESC/P)
-default_printer = os.getenv('DEFAULT_PRINTER')
+default_printer = os.getenv('DEFAULT_PRINTER2')
 
 class PrinterOfflineException(APIException):
     status_code = 503
     default_detail = "A impressora está offline ou não está acessível."
     default_code = "printer_offline"
     
-def is_printer_offline():
+def is_printer_offline_all():
     try:
         hPrinter = win32print.OpenPrinter(default_printer)
         # Nível 2 retorna um dicionário com informações detalhadas sobre a impressora
@@ -26,10 +26,10 @@ def is_printer_offline():
     except:
         return True
 
-def print_order(order_data):
+def print_order_all(order_data):
     
     # Verifica se a impressora está online
-    if is_printer_offline():
+    if is_printer_offline_all():
         raise PrinterOfflineException()  # Lança a exceção se a impressora estiver offline
 
     try:
@@ -53,18 +53,6 @@ def print_order(order_data):
         win32print.WritePrinter(hPrinter, cabecalho_pedido(order_id, date_time, waiter, "Copa"))
         imprimir_copa(hPrinter, order_dishes)
         win32print.WritePrinter(hPrinter, rodape_pedido(order_note, table_number, is_outside))
-        
-        hasKitchenOrder = False
-        
-        for order_dish in order_dishes:
-            dish = order_dish['dish']
-            if dish['department'] == 'cozinha':
-                hasKitchenOrder = True
-        
-        if hasKitchenOrder:   
-            win32print.WritePrinter(hPrinter, cabecalho_pedido(order_id, date_time, waiter, "Cozinha"))
-            imprimir_cozinha(hPrinter, order_dishes)
-            win32print.WritePrinter(hPrinter, rodape_pedido(order_note, table_number, is_outside))
 
         # Finalizar o trabalho de impressão
         win32print.EndPagePrinter(hPrinter)

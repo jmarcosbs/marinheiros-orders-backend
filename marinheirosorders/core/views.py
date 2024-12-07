@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 from .models import Order
 from .serializers import OrderSerializer
-from .service.print import print_order, is_printer_offline, PrinterOfflineException  # Importando a função de impressão
+from .service.print_kitchen import print_order_kitchen, is_printer_offline_kitchen, PrinterOfflineException  # Importando a função de impressão
+from .service.print_all import print_order_all, is_printer_offline_all, PrinterOfflineException  # Importando a função de impressão
 from .service.telegram_notify import send_notification
+# Dentro de views.py
+from .service.telegram_notify_kitchen import send_notification_kitchen
 from unidecode import unidecode
-import re
 
 class PrinterErrorException(APIException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -33,9 +35,12 @@ class OrderViewSet(viewsets.ModelViewSet):
                 normalized_data[key] = value  # Mantém valores não-string inalterados
         
         try:
-            print(f'Impressora offline? {is_printer_offline()}')
-            print_order(normalized_data)  # Chamada para a função de impressão
+            print(f'Impressora offline cozinha? {is_printer_offline_kitchen()}')
+            print(f'Impressora offline copa? {is_printer_offline_all()}')
+            print_order_all(normalized_data)
+            print_order_kitchen(normalized_data) # Chamada para a função de impressão
             send_notification(serializer.data)
+            send_notification_kitchen(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except PrinterOfflineException as e:
             return Response({"detail": e.default_detail}, status=e.status_code)

@@ -1,7 +1,7 @@
 from datetime import datetime
 import requests  # Import the requests module
 
-def send_notification(order_data):
+def send_notification_kitchen(order_data):
     
     # Agora você pode acessar os dados do pedido
     order_id = order_data['id']
@@ -44,17 +44,22 @@ def send_notification(order_data):
     """
     
     token = "7641995639:AAEi5W_XRqoo-0y3u2YU4JVmTy_IrZttJPo"
+    
+    chatIdKitchen = "-1002290593897"
+    
+    telegramUrlKitchen = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chatIdKitchen}&parse_mode=HTML&text={telegram_message}"
+    
 
-    chatId = "-1002411830546"
+    isForKitchen = False
+
+    for order_dish in order_dishes:
+        dish = order_dish['dish']
+        if dish['department'] == 'cozinha':
+            isForKitchen = True
     
-    # chatIdKitchen = "-1002290593897"
-    
-    telegramUrl = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chatId}&parse_mode=HTML&text={telegram_message}"
-    
-    # telegramUrlKitchen = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chatIdKitchen}&parse_mode=HTML&text={telegram_message}"
-    
-    send = requests.get(telegramUrl)  # Send message in Telegram
-    send.json()
+    if isForKitchen:
+        send = requests.get(telegramUrlKitchen)  # Send message in Telegram
+        send.json()
 
     
-    print("Notificação enviada")
+    print("Notificação enviada cozinha")
