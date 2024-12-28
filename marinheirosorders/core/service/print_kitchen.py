@@ -20,7 +20,7 @@ def is_printer_offline_kitchen():
         hPrinter = win32print.OpenPrinter(default_printer)
         # Nível 2 retorna um dicionário com informações detalhadas sobre a impressora
         printer_info = win32print.GetPrinter(hPrinter, 2)
-        print(printer_info)
+        # print(printer_info)
         win32print.ClosePrinter(hPrinter)
         return False
     except:
